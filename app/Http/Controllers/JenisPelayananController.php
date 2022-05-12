@@ -26,6 +26,7 @@ class JenisPelayananController extends Controller
     
     public function create(Request $request)
     {
+        $dokumen = Dokumen::all();
         if ($request->isMethod('post'))
         {
             $valid = Validator::make($request->all(), [
@@ -42,13 +43,24 @@ class JenisPelayananController extends Controller
                 ]);
 
                 if ($JenisPelayanan) {
+                    $dataDokumen = $request->input('dokumen');
+                    // dd(sizeof($dataDokumen));
+                    if(is_array($dataDokumen) || is_object($dataDokumen)){
+                        foreach($dataDokumen as $dd){
+                        
+                            $saveDokumen = DokumenDetail::create([
+                                'type_id'  => $JenisPelayanan->id,
+                                'document_id'  => $dd
+                            ]);
+                        }    
+                    }
                     return redirect()->route('view_jenis_pelayanan')->with('success', 'Jenis Pelayanan berhasil dibuat.');
                 }
             }
             return redirect()->route('create_jenis_pelayanan')->withErrors($valid)->withInput();
         }
         /// menampilkan halaman create
-        return view('jenis-pelayanan.create');
+        return view('jenis-pelayanan.create',compact('dokumen'));
     }
   
     public function store(Request $request)
@@ -118,7 +130,14 @@ class JenisPelayananController extends Controller
     public function view($id, Request $request)
     {
         $JenisPelayanan = JenisPelayanan::find($id);
-        // dd($JenisPelayanan);
+        $dokumen = Dokumen::all();
+        $dokumenDetail = DokumenDetail::where('type_id',$JenisPelayanan->id)->get();
+        $dataDD=array();
+        foreach($dokumenDetail as $dd){
+            $dataDD[]=$dd->document_id;
+        }
+        // dd($dataDD);
+
         if (!empty($JenisPelayanan))
         {
             if ($request->isMethod('post'))
@@ -136,6 +155,20 @@ class JenisPelayananController extends Controller
                     $status = $JenisPelayanan->save();
 
                     if ($status) {
+                        $dataDokumen = $request->input('dokumen');
+                        // dd(sizeof($dataDokumen));
+                        if(is_array($dataDokumen) || is_object($dataDokumen)){
+                            foreach($dataDokumen as $dd){
+                            
+                                if(!in_array($dd,$dataDD)){
+                                    $saveDokumen = DokumenDetail::create([
+                                        'type_id'  => $JenisPelayanan->id,
+                                        'document_id'  => $dd
+                                    ]);    
+                                }
+                            }    
+                        }
+    
                         return redirect()->route('view_jenis_pelayanan')->with('success', 'Jenis Pelayanan berhasil diubah.');
                     }
 
@@ -143,7 +176,7 @@ class JenisPelayananController extends Controller
                 return redirect()->route('view_detail_jenis_pelayanan', ['id' => $id])->withErrors($valid)->withInput();
             }
 
-            return view('jenis-pelayanan.view', compact('JenisPelayanan'));
+            return view('jenis-pelayanan.view', compact('JenisPelayanan','dokumen','dokumenDetail','dataDD'));
         }
         return redirect()->route('view_jenis_pelayanan')->with('error', 'User tidak ditemukan');
     }

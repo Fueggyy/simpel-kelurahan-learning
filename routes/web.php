@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,14 +15,14 @@ use App\Http\Controllers\DokumenController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Auth::routes();
 
 Route::group(['middleware' => ['web', 'auth','roles']],function(){
-    // Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/', [HomeController::class, 'index'])->name('index');
         Route::group(['prefix' => 'profile'], function () {
             Route::get('/', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
             Route::match(['get', 'post'], 'change-password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('changePasswordProfile');
@@ -64,6 +65,7 @@ Route::group(['middleware' => ['web', 'auth','roles']],function(){
             Route::get('/', [App\Http\Controllers\PelayananController::class, 'index'])->name('view_pelayanan');
             Route::match(['get', 'post'], 'view/{id}', [App\Http\Controllers\PelayananController::class, 'view'])->name('view_detail_pelayanan');
             Route::match(['get', 'post'], 'create', [App\Http\Controllers\PelayananController::class, 'create'])->name('create_pelayanan');
+            Route::post('upload-dokumen/{id}', [App\Http\Controllers\PelayananController::class, 'uploadDokumen'])->name('upload_dokumen_pelayan');
         });
         // Route::resource('dokumen', DokumenController::class);
     

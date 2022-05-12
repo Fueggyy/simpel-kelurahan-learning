@@ -73,7 +73,14 @@
 
 </head>
 
-<body class="@yield('classes_body')" @yield('body_data')>
+<body class="@yield('classes_body')" @yield('body_data')
+@if(Request::path() == 'login')
+    style="background-image: url('{{ URL::to('/') }}/vendor/adminlte/dist/img/background.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;"
+    @endif
+    >
 
     {{-- Body Content --}}
     @yield('body')

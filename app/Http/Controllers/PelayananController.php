@@ -9,6 +9,8 @@ use App\Models\DokumenDetail;
 use App\Models\Pelayanan;
 use App\Models\PelayananDetail;
 use App\DataTables\PelayananDataTable;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Validator;
 use PDF;
 use Barryvdh\Snappy;
@@ -50,7 +52,14 @@ class PelayananController extends Controller
                 ]);
 
                 if ($Pelayanan) {
-                    return redirect()->route('view_pelayanan')->with('success', ' Pelayanan berhasil dibuat.');
+                    $dokumenDetail = DokumenDetail::where('type_id',$Pelayanan->jenis_pelayanan_id)->get();
+                    foreach($dokumenDetail as $dd){                            
+                        $savePelayananDetail = PelayananDetail::create([
+                            'pelayanan_id'  => $Pelayanan->id,
+                            'document_id'  => $dd->document_id
+                        ]);    
+                    }   
+                    return redirect()->route('view_detail_pelayanan',['id' => $Pelayanan->id])->with('success', ' Pelayanan berhasil dibuat.');
                 }
             }
             return redirect()->route('create_pelayanan')->withErrors($valid)->withInput();
@@ -127,7 +136,8 @@ class PelayananController extends Controller
     {
         $JenisPelayanan = JenisPelayanan::all();
         $Pelayanan = Pelayanan::find($id);
-        // dd($Pelayanan);
+        $pelayananDetail = PelayananDetail::with('dok')->where('pelayanan_id',$Pelayanan->id)->get();
+        // dd($pelayananDetail);
         if (!empty($Pelayanan))
         {
             if ($request->isMethod('post'))
@@ -157,9 +167,48 @@ class PelayananController extends Controller
                 return redirect()->route('view_detail_pelayanan', ['id' => $id])->withErrors($valid)->withInput();
             }
 
-            return view('pelayanan.view', compact('Pelayanan','JenisPelayanan'));
+            return view('pelayanan.view', compact('Pelayanan','JenisPelayanan','pelayananDetail'));
         }
         return redirect()->route('view_pelayanan')->with('error', 'User tidak ditemukan');
+    }
+
+           /**
+     * Get  User's detail and form change password
+     *
+     * @param $id
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
+     */
+    public function uploadDokumen($id, Request $request)
+    {
+        $pelayananDetail = PelayananDetail::find($id);
+        // dd($pelayananDetail);
+        if (!empty($pelayananDetail))
+        {
+            $valid = Validator::make($request->all(), [
+                'dokumen'      => 'required',
+            ]);
+
+            if (!$valid->fails()) { 
+                if (!file_exists(public_path('storage/pelayanan/'.$pelayananDetail->pelayanan_id))) Storage::disk('public')->makeDirectory('pelayanan/'.$pelayananDetail->pelayanan_id);
+                $file = $request->file('dokumen');
+                $extension = $file->extension();
+                $namaFile = $pelayananDetail->pelayanan_id."-".$pelayananDetail->document_id.".".$extension;
+                $tujuan_upload = 'pelayanan/'.$pelayananDetail->pelayanan_id;
+                // $file->move($tujuan_upload,$namaFile);
+                Storage::disk('public')->putFileAs($tujuan_upload, $file, $namaFile,'public');
+
+                $pelayananDetail->dokumen = $namaFile;
+                $status = $pelayananDetail->save();
+
+                if ($status) {
+                    return redirect()->route('view_detail_pelayanan', ['id' => $pelayananDetail->pelayanan_id])->with('success', ' Dokumen Berhasil di upload.');
+                }
+
+            }
+            return redirect()->route('view_detail_pelayanan', ['id' => $pelayananDetail->pelayanan_id])->withErrors($valid)->withInput();
+        }
+        return redirect()->route('view_pelayanan')->with('error', 'Pelayanan detail tidak ditemukan');
     }
 
             /**
@@ -218,14 +267,14 @@ class PelayananController extends Controller
 
                         if ($this->getRomawi(date("m")) == $lastNomor[2]  && date("Y") == $lastNomor[3]){
                             $nomor = (int)$nomorBefore + 1;
-                            $nomorSurat = $nomor."/".$JenisPelayanan->name."/".$this->getRomawi(date("m"))."/".date("Y");
+                            $nomorSurat = $nomor."/".$JenisPelayanan->code."/".$this->getRomawi(date("m"))."/".date("Y");
                         }else{
                             $nomor = 1;
-                            $nomorSurat = $nomor."/".$JenisPelayanan->name."/".$this->getRomawi(date("m"))."/".date("Y"); 
+                            $nomorSurat = $nomor."/".$JenisPelayanan->code."/".$this->getRomawi(date("m"))."/".date("Y"); 
                         }
                     } else {
                         $nomor = 1;
-                        $nomorSurat = $nomor."/".$JenisPelayanan->name."/".$this->getRomawi(date("m"))."/".date("Y");
+                        $nomorSurat = $nomor."/".$JenisPelayanan->code."/".$this->getRomawi(date("m"))."/".date("Y");
                     }
 
                     if ($nomorSurat) {

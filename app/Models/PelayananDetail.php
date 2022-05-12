@@ -14,5 +14,11 @@ class PelayananDetail extends Model
     protected $fillable = [
         'pelayanan_id', 
         'document_id', 
+        'dokumen'
     ];
+
+    public function dok()
+    {
+        return $this->hasOne(\App\Models\Dokumen::class, 'id','document_id');
+    }
 }

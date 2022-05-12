@@ -4,26 +4,42 @@
 @section('plugins.Sweetalert2', true)
 
 @section('content_header')
-    <h1>User</h1>
+    <h1></h1>
 @stop
 
 @section('content')
-    @if ($message = Session::get('success'))
-    <div class="alert alert-success">
-        <strong>{{ $message }}</strong>
-    </div>
-    @endif
-    @if ($errors->any())
-        <div class="error card-body alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+<div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+            @if ($message = Session::get('success'))
+            <div class="alert alert-success">
+                <strong>{{ $message }}</strong>
+            </div>
+            @endif
+            @if ($errors->any())
+                <div class="error card-body alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
-    @endif
-
-    {!! $dataTable->table() !!}
+    </div>  
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card-header bg-primary">
+            <h3 class="card-title">User manajemen</h3>
+        </div>
+        <div class="card card-primary">
+            <div class="card-body">
+                {!! $dataTable->table() !!}
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
 @stop
 
 @section('css')
@@ -41,7 +57,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.2.0/sweetalert2.all.min.js"></script>
 <script>
     function viewUser(id) {
-        window.location.href = "{{ url('user-management/view') }}/" + id;
+        window.location.href = "{{ url('user-manajemen/view') }}/" + id;
     }
 
     function deleteUser(id) {

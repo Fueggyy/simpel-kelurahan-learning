@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Simpel',
+    'title' => 'Simpel - Kopo Kiwari',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -45,12 +45,12 @@ return [
     |
     */
 
-    'logo' => '<b>Simpel</b>',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-    'logo_img_class' => 'brand-image img-circle elevation-3',
+    'logo' => '<b>Simpel</b> Kopo Kiwari',
+    'logo_img' => 'vendor/adminlte/dist/img/logo-kopo.png',
+    'logo_img_class' => 'brand-image',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'AdminLTE',
+    'logo_img_alt' => 'Simpel',
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
     'usermenu_enabled' => true,
     'usermenu_header' => true,
     'usermenu_header_class' => 'bg-primary',
-    'usermenu_image' => true,
+    'usermenu_image' => false,
     'usermenu_desc' => true,
     'usermenu_profile_url' => true,
 
@@ -191,7 +191,7 @@ return [
     'dashboard_url' => 'home',
     'logout_url' => 'logout',
     'login_url' => 'login',
-    'register_url' => 'register',
+    'register_url' => '',
     'password_reset_url' => 'password/reset',
     'password_email_url' => 'password/email',
     'profile_url' => false,
